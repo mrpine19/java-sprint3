@@ -7,27 +7,27 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PacienteDAO {
 
     public void create(Paciente paciente) {
-        String sql = "INSERT INTO TB_CAR_PACIENTE (nome_paciente, telefone_paciente, afinidade_digital_score) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO TB_CAR_PACIENTE (nome_paciente, telefone_paciente, data_nascimento_paciente, afinidade_digital_score) VALUES (?, ?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"id"})) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"ID_PACIENTE"})) {
 
             pstmt.setString(1, paciente.getNomePaciente());
             pstmt.setString(2, paciente.getTelefonePaciente());
-            pstmt.setInt(3, paciente.getAfinidadeDigitalScore());
+            pstmt.setDate(3, new Date(paciente.getDataNascimento().getTime()));
+            pstmt.setInt(4, paciente.getAfinidadeDigitalScore());
             pstmt.executeUpdate();
 
-            // Pega o ID gerado pelo banco e seta no objeto
             ResultSet rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 paciente.setIdPaciente(rs.getLong(1));
             }
-
             System.out.println("Paciente criado com sucesso! ID: " + paciente.getIdPaciente());
 
         } catch (SQLException e) {
@@ -36,7 +36,7 @@ public class PacienteDAO {
     }
 
     public Paciente read(Long id) {
-        String sql = "SELECT * FROM TB_CAR_PACIENTE WHERE id = ?";
+        String sql = "SELECT id_paciente, nome_paciente, telefone_paciente, data_nascimento_paciente, afinidade_digital_score FROM TB_CAR_PACIENTE WHERE id_paciente = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -44,8 +44,10 @@ public class PacienteDAO {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                Paciente paciente = new Paciente(rs.getString("nome_paciente"), rs.getString("telefone_paciente"));
-                paciente.setIdPaciente(rs.getLong("id"));
+                Date dataNasc = rs.getDate("data_nascimento_paciente");
+
+                Paciente paciente = new Paciente(rs.getString("nome_paciente"), rs.getString("telefone_paciente"), dataNasc);
+                paciente.setIdPaciente(rs.getLong("id_paciente"));
                 paciente.setAfinidadeDigitalScore(rs.getInt("afinidade_digital_score"));
                 return paciente;
             }
@@ -53,18 +55,23 @@ public class PacienteDAO {
         } catch (SQLException e) {
             System.err.println("Erro ao buscar paciente: " + e.getMessage());
         }
-        return null; // Retorna null se não encontrar
+        return null;
     }
 
     public void update(Paciente paciente) {
-        String sql = "UPDATE TB_CAR_PACIENTE SET nome_paciente = ?, telefone_paciente = ?, afinidade_digital_score = ? WHERE id = ?";
+        // SQL atualizada para incluir todos os campos e usar 'id_paciente' no WHERE
+        String sql = "UPDATE TB_CAR_PACIENTE SET nome_paciente = ?, telefone_paciente = ?, data_nascimento_paciente = ?, afinidade_digital_score = ?, score_risco_absenteismo = ? WHERE id_paciente = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, paciente.getNomePaciente());
             pstmt.setString(2, paciente.getTelefonePaciente());
-            pstmt.setInt(3, paciente.getAfinidadeDigitalScore());
-            pstmt.setLong(4, paciente.getIdPaciente());
+            // Converte java.util.Date para java.sql.Date
+            pstmt.setDate(3, new Date(paciente.getDataNascimento().getTime()));
+            pstmt.setInt(4, paciente.getAfinidadeDigitalScore());
+            pstmt.setInt(5, paciente.getScoreRiscoAbsenteismo()); // Novo campo
+            pstmt.setLong(6, paciente.getIdPaciente()); // Usa id_paciente
+
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
@@ -77,7 +84,8 @@ public class PacienteDAO {
     }
 
     public void delete(Long id) {
-        String sql = "DELETE FROM TB_CAR_PACIENTE WHERE id = ?";
+        // SQL corrigida para usar 'id_paciente' no WHERE
+        String sql = "DELETE FROM TB_CAR_PACIENTE WHERE id_paciente = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -95,15 +103,22 @@ public class PacienteDAO {
 
     public List<Paciente> findAll() {
         List<Paciente> pacientes = new ArrayList<>();
-        String sql = "SELECT * FROM TB_CAR_PACIENTE";
+        // SQL corrigida para usar a coluna correta do DDL
+        String sql = "SELECT id_paciente, nome_paciente, telefone_paciente, data_nascimento_paciente, afinidade_digital_score, score_risco_absenteismo FROM TB_CAR_PACIENTE";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                Paciente paciente = new Paciente(rs.getString("nome_paciente"), rs.getString("telefone_paciente"));
-                paciente.setIdPaciente(rs.getLong("id"));
+                // Mapeamento corrigido para usar a data de nascimento no construtor
+                java.util.Date dataNasc = rs.getDate("data_nascimento_paciente");
+
+                Paciente paciente = new Paciente(rs.getString("nome_paciente"), rs.getString("telefone_paciente"), dataNasc);
+
+                paciente.setIdPaciente(rs.getLong("id_paciente")); // Correto: usando id_paciente
                 paciente.setAfinidadeDigitalScore(rs.getInt("afinidade_digital_score"));
+                paciente.setScoreRiscoAbsenteismo(rs.getInt("score_risco_absenteismo")); // Novo campo
+
                 pacientes.add(paciente);
             }
 
