@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 
 public class Cuidador {
     private Long idCuidador;
-    private String nomeCuidadorMascarado;
-    private String telefoneCuidadorMascarado;
+    private String nomeCuidador;
+    private String telefoneCuidador;
     private LocalDateTime dataCriacao;
 
 
     public Cuidador(String nomeCuidadorMascarado, String telefoneCuidadorMascarado) {
-        this.nomeCuidadorMascarado = nomeCuidadorMascarado;
-        this.telefoneCuidadorMascarado = telefoneCuidadorMascarado;
+        this.nomeCuidador = nomeCuidadorMascarado;
+        this.telefoneCuidador = telefoneCuidadorMascarado;
     }
 
     public Long getIdCuidador() {
@@ -22,20 +22,20 @@ public class Cuidador {
         this.idCuidador = idCuidador;
     }
 
-    public String getNomeCuidadorMascarado() {
-        return nomeCuidadorMascarado;
+    public String getNomeCuidador() {
+        return nomeCuidador;
     }
 
-    public void setNomeCuidadorMascarado(String nomeCuidadorMascarado) {
-        this.nomeCuidadorMascarado = nomeCuidadorMascarado;
+    public void setNomeCuidador(String nomeCuidador) {
+        this.nomeCuidador = nomeCuidador;
     }
 
-    public String getTelefoneCuidadorMascarado() {
-        return telefoneCuidadorMascarado;
+    public String getTelefoneCuidador() {
+        return telefoneCuidador;
     }
 
-    public void setTelefoneCuidadorMascarado(String telefoneCuidadorMascarado) {
-        this.telefoneCuidadorMascarado = telefoneCuidadorMascarado;
+    public void setTelefoneCuidador(String telefoneCuidador) {
+        this.telefoneCuidador = telefoneCuidador;
     }
 
     public LocalDateTime getDataCriacao() {

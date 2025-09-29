@@ -11,13 +11,13 @@ import java.util.List;
 public class CuidadorDAO {
 
     public void create(Cuidador cuidador) {
-        String sql = "INSERT INTO TB_CAR_CUIDADOR (nome_cuidador_mascarado, telefone_cuidador_mascarado, email_cuidador_mascarado, dt_criacao) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO TB_CAR_CUIDADOR (nome_cuidador, telefone_cuidador, dt_criacao) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"ID_CUIDADOR"})) {
 
-            pstmt.setString(1, cuidador.getNomeCuidadorMascarado());
-            pstmt.setString(2, cuidador.getTelefoneCuidadorMascarado());
-            pstmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            pstmt.setString(1, cuidador.getNomeCuidador());
+            pstmt.setString(2, cuidador.getTelefoneCuidador());
+            pstmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             pstmt.executeUpdate();
 
             ResultSet rs = pstmt.getGeneratedKeys();
@@ -42,11 +42,10 @@ public class CuidadorDAO {
 
             if (rs.next()) {
                 Cuidador cuidador = new Cuidador(
-                        rs.getString("nome_cuidador_mascarado"),
-                        rs.getString("telefone_cuidador_mascarado")
+                        rs.getString("nome_cuidador"),
+                        rs.getString("telefone_cuidador")
                 );
                 cuidador.setIdCuidador(rs.getLong("id_cuidador"));
-                // Converte Timestamp do banco para LocalDateTime
                 cuidador.setDataCriacao(rs.getTimestamp("dt_criacao").toLocalDateTime());
                 return cuidador;
             }
@@ -58,13 +57,13 @@ public class CuidadorDAO {
     }
 
     public void update(Cuidador cuidador) {
-        String sql = "UPDATE TB_CAR_CUIDADOR SET nome_cuidador_mascarado = ?, telefone_cuidador_mascarado = ?, email_cuidador_mascarado = ? WHERE id_cuidador = ?";
+        String sql = "UPDATE TB_CAR_CUIDADOR SET nome_cuidador = ?, telefone_cuidador = ? WHERE id_cuidador = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, cuidador.getNomeCuidadorMascarado());
-            pstmt.setString(2, cuidador.getTelefoneCuidadorMascarado());
-            pstmt.setLong(4, cuidador.getIdCuidador());
+            pstmt.setString(1, cuidador.getNomeCuidador());
+            pstmt.setString(2, cuidador.getTelefoneCuidador());
+            pstmt.setLong(3, cuidador.getIdCuidador());
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
@@ -86,6 +85,8 @@ public class CuidadorDAO {
 
             if (rowsAffected > 0) {
                 System.out.println("Cuidador com ID " + id + " deletado.");
+            } else {
+                System.out.println("Nenhum cuidador com ID " + id + " foi encontrado para deletar.");
             }
 
         } catch (SQLException e) {
@@ -95,15 +96,15 @@ public class CuidadorDAO {
 
     public List<Cuidador> findAll() {
         List<Cuidador> cuidadores = new ArrayList<>();
-        String sql = "SELECT * FROM TB_CAR_CUIDADOR";
+        String sql = "SELECT * FROM TB_CAR_CUIDADOR ORDER BY id_cuidador";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 Cuidador cuidador = new Cuidador(
-                        rs.getString("nome_cuidador_mascarado"),
-                        rs.getString("telefone_cuidador_mascarado")
+                        rs.getString("nome_cuidador"),
+                        rs.getString("telefone_cuidador")
                 );
                 cuidador.setIdCuidador(rs.getLong("id_cuidador"));
                 cuidador.setDataCriacao(rs.getTimestamp("dt_criacao").toLocalDateTime());

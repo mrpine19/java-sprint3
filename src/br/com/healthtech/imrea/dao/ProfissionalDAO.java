@@ -13,7 +13,7 @@ import java.util.List;
 public class ProfissionalDAO {
 
     public void create(Profissional profissional) {
-        String sql = "INSERT INTO TB_CAR_PROFISSIONAL_SAUDE (nome_completo, especialidade) VALUES (?, ?)";
+        String sql = "INSERT INTO TB_CAR_PROFISSIONAL_SAUDE (nome_profissional, especialidade_profissional) VALUES (?, ?)";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, new String[]{"ID_PROFISSIONAL"})) {
 
@@ -34,7 +34,7 @@ public class ProfissionalDAO {
     }
 
     public Profissional read(Long id) {
-        String sql = "SELECT id_profissional, nome_completo, especialidade FROM TB_CAR_PROFISSIONAL_SAUDE WHERE id_profissional = ?";
+        String sql = "SELECT id_profissional, nome_profissional, especialidade_profissional FROM TB_CAR_PROFISSIONAL_SAUDE WHERE id_profissional = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -44,8 +44,8 @@ public class ProfissionalDAO {
             if (rs.next()) {
                 Profissional profissional = new Profissional(
                         rs.getLong("id_profissional"),
-                        rs.getString("nome_completo"),
-                        rs.getString("especialidade")
+                        rs.getString("nome_profissional"),
+                        rs.getString("especialidade_profissional")
                 );
                 return profissional;
             }
@@ -57,7 +57,7 @@ public class ProfissionalDAO {
     }
 
     public void update(Profissional profissional) {
-        String sql = "UPDATE TB_CAR_PROFISSIONAL_SAUDE SET nome_completo = ?, especialidade = ? WHERE id_profissional = ?";
+        String sql = "UPDATE TB_CAR_PROFISSIONAL_SAUDE SET nome_profissional = ?, especialidade_profissional = ? WHERE id_profissional = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -98,7 +98,7 @@ public class ProfissionalDAO {
 
     public List<Profissional> findAll() {
         List<Profissional> profissionais = new ArrayList<>();
-        String sql = "SELECT id_profissional, nome_completo, especialidade FROM TB_CAR_PROFISSIONAL_SAUDE";
+        String sql = "SELECT id_profissional, nome_profissional, especialidade_profissional FROM TB_CAR_PROFISSIONAL_SAUDE ORDER BY id_profissional";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -106,8 +106,8 @@ public class ProfissionalDAO {
             while (rs.next()) {
                 Profissional profissional = new Profissional(
                         rs.getLong("id_profissional"),
-                        rs.getString("nome_completo"),
-                        rs.getString("especialidade")
+                        rs.getString("nome_profissional"),
+                        rs.getString("especialidade_profissional")
                 );
                 profissionais.add(profissional);
             }
